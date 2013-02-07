@@ -47,13 +47,13 @@ public class ZRangeByScoreCommand extends Command {
 		checkNull(key, "key can not be null");
 		
 		
-		Object min = message.body.getObject("min");
+		String min = getMandatoryString("min", message);
 		checkNull(min, "min can not be null");
-		checkType(min, "min must be of type double or string", new Class[] {Double.class, String.class});
+		//checkType(min, "min must be of type double or string", new Class[] {Double.class, String.class});
 		
-		Object max = message.body.getObject("max");
-		checkNull(max, "max can not be null");
-		checkType(max, "max must be of type double or string", new Class[] {Double.class, String.class});
+		String max = getMandatoryString("max", message);
+		checkNull(max, "min can not be null");
+	//	checkType(max, "max must be of type double or string", new Class[] {Double.class, String.class});
 		
 		Number offset = message.body.getNumber("offset");
 		
@@ -66,18 +66,12 @@ public class ZRangeByScoreCommand extends Command {
 			
 			if (min instanceof String && max instanceof String) {
 				if (count != null && offset != null) {
-					responseFuture = context.getConnection().zrangebyscore(key, (String)min, (String)max, offset.intValue(), count.intValue());
+					responseFuture = context.getConnection().zrangebyscore(key, Double.parseDouble(min), Double.parseDouble(max), offset.intValue(), count.intValue());
 				} else {
-					responseFuture = context.getConnection().zrangebyscore(key, (String)min, (String)max);
-				}
-			} else if (min instanceof Double && max instanceof Double) {
-				if (count != null && offset != null) {
-					responseFuture = context.getConnection().zrangebyscore(key, (Double)min, (Double)max, offset.intValue(), count.intValue());
-				} else {
-					responseFuture = context.getConnection().zrangebyscore(key, (Double)min, (Double)max);
+					responseFuture = context.getConnection().zrangebyscore(key,  Double.parseDouble(min),  Double.parseDouble(max));
 				}
 			} else {
-				throw new CommandException("min and max must be of the same type");
+				throw new CommandException("min and max must be instance of String");
 			}
 
 			List<String> response_values = responseFuture.get();
